@@ -64,14 +64,14 @@ def load_cities(cities):
 
 
 def get_nonsoft_symbol(word):
-    char = word[-1].capitalize()
-    if (char == 'Ь') or (char == 'Ъ'):
-        char = word[-2].capitalize()
+    char = word[-1]#.capitalize()
+    if (char == 'ь') or (char == 'ъ'):
+        char = word[-2]#.capitalize()
     return char
 
 def find_city(cities: list, players_cities: list, user_city: str) -> str:
     
-    char = get_nonsoft_symbol(user_city)
+    char = get_nonsoft_symbol(user_city).capitalize()
     for city in cities:
         if (city[0] == char) and (city not in players_cities):
             #print(3)
@@ -81,79 +81,44 @@ def find_city(cities: list, players_cities: list, user_city: str) -> str:
 
 
 def play_cities(bot, update, cities_list, players):
+    '''{players: 'cities' : [], 'last': ''} '''
     user_id = update.effective_user['id']
     try:
         user_city = update.message.text.split()[1]
-        #print(user_city)
     except IndexError:
         update.message.reply_text("Ошибка. Попробуйте ещё.")
+    #check player in players
+    if players.get(user_id) == None:
+        players[user_id] = dict()
 
-    if players.get('last'):
-        if players.get('last') != user_city[0].lower():
-            players[user_id] = []
-            players['last'] = ''
-            update.message.reply_text("You lose.")
+    #check last char == first char of city 
+    last_char = players[user_id].get('last')
+    if last_char:
+        if user_city[0].lower() != last_char:
+            players[user_id]['cities'] = []
+            players[user_id]['last'] = ''
+            update.message.reply_text('Вы проиграли. Начинаем заново.')
             return None
-
-        #if user_city[0].lower() != players.get('last'):
-            #print('problem')
-        #else:
-            #print('no problem')
-    if (user_city in cities_list) and (user_city not in players.get(user_id,[])):
+    #check that user_city is valid and does not repeat
+    if (user_city in cities_list) and (user_city not in players[user_id].get('cities',[])):
+        #remeber user_city
         try:
-            players[user_id].append(user_city)
+            players[user_id]['cities'].append(user_city)
         except KeyError:
-            players[user_id] = [user_city]
+            players[user_id]['cities'] = []
     else:
-        players[user_id] = []
-        players['last'] = ''
-        update.message.reply_text("You lose.")
+        players[user_id]['cities'] = []
+        players[user_id]['last'] = ''
+        update.message.reply_text('Вы проиграли. Начинаем заново.')
         return None
-    
-    #print(2)
-    answer_city = find_city(cities_list, players[user_id], user_city)
+    #finding city in cities_list    
+    answer_city = find_city(cities_list, players[user_id]['cities'], user_city)
     if answer_city:
-        players[user_id].append(answer_city)
-        update.message.reply_text(f"{answer_city}. Your turn.")
-        players['last'] = get_nonsoft_symbol(answer_city).lower()
-        #print(last_char)
+        players[user_id]['cities'].append(answer_city)
+        update.message.reply_text(f"{answer_city}. Ваш ход.")
+        players[user_id]['last'] = get_nonsoft_symbol(answer_city)
     else:
-        players[user_id] = []
-        update.message.reply_text("You won.")
-    #print(answer_city)
-    #print(players)
-    #print('########')
-    '''
-    if user_city in all_cities:
-        try:
-            print(1)
-            players_data[user_id].append(user_city)
-        except KeyError:
-            print(2)
-            players_data[user_id] = [user_city]
-    
-    #check city existence
-    if user_city not in all_cities:
-        print(1)
-        players_data['user_id'] = []
-        update.message.reply_rext("Такого города нету. Играем заново.")
-    #check city was in game
-    elif user_city in players_data.get('user_id'):
-        print(2)
-        players_data['user_id'] = []
-        update.message.reply_text("Такой город уже был. Играем заново.")
-    else:
-        print(3)
-        try:
-            players_data['user_id'].append(user_city)
-        except KeyError:
-            players_data['user_id'] = [user_city]
-    
-    print(4)
-    #find city to answer
-    last_char = user_city[-1].capitalize()
-    print(last_char)
-    print(players_data)
-    save_players_data(players_data)
-    ''' 
+        players[user_id]['cities'] = []
+        players[user_id]['last'] = ''
+        update.message.reply_text('Вы выиграли.')
 
