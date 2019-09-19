@@ -1,16 +1,11 @@
-import operator
-
-def get_dict_elements(students):
-    names = dict()
-    for student in students:
-        try:
-            names[student['first_name']] += 1
-        except KeyError:
-            names[student['first_name']] = 1
-    return names
+from collections import Counter
 
 def get_most_frequent_name(names):
-    return max(names.items(), key=operator.itemgetter(1))[0]
+    return max(set(names), key = names.count)
+
+def get_name_list(students):
+    return list(student.get('first_name') for student in students)
+
 
 # Задание 1
 # Дан список учеников, нужно посчитать количество повторений каждого имени ученика.
@@ -23,10 +18,14 @@ students = [
 ]
 # ???
 
-names = get_dict_elements(students)
-for name, value in names.items():
+print('#'*10)
+print("Problem 1.")
+names = get_name_list(students)
+for name, value in Counter(names).items():
     print(f"{name}: {value}")
-print()
+
+print('#'*10)
+
 # Пример вывода:
 # Вася: 1
 # Маша: 2
@@ -36,16 +35,18 @@ print()
 # Задание 2
 # Дан список учеников, нужно вывести самое часто повторящееся имя.
 students = [
-  {'first_name': 'Вася'},
+        {'first_name': 'Вася'},
   {'first_name': 'Петя'},
   {'first_name': 'Маша'},
   {'first_name': 'Маша'},
   {'first_name': 'Оля'},
 ]
+print('#'*10)
+print('Problem 2.')
 # ???
-names = get_dict_elements(students)
+names = get_name_list(students)
 print('Самое частое имя:',get_most_frequent_name(names)) 
-print()
+print('#' * 10)
 # Пример вывода
 # Самое частое имя среди учеников: Маша
 
@@ -63,11 +64,14 @@ school_students = [
   ]
 ]
 
+print('#'*10)
+print('Problem 3.')
+
 for num, group in enumerate(school_students):
-    names = get_dict_elements(group)
+    names = get_name_list(group)
     frq_name = get_most_frequent_name(names)
-    print(f"Самое частое имя в классе {num}: {frq_name}")
-print()
+    print(f"Самое частое имя в классе {num+1}: {frq_name}")
+print('#'*10)
 # ???
 
 
@@ -89,21 +93,23 @@ is_male = {
   'Миша': True,
 }
 # ???
+print('#'*10)
+print('Problem 4.')
+
 for group in school:
-    names = get_dict_elements(group.get('students'))
+    names = get_name_list(group.get('students'))
     boys, girls = 0, 0
-    for name, value in names.items():
+    for name in names:
         if is_male[name]:
-            boys += value
+            boys += 1
         else:
-            girls += value
+            girls += 1
     group_name = group.get('class')
     print(f"В классе {group_name} {girls} девочки и {boys} мальчика")
-print()
+print('#'*10)
 # Пример вывода:
 # В классе 2a 2 девочки и 0 мальчика.
 # В классе 3c 0 девочки и 2 мальчика.
-
 
 # Задание 5
 # По информации о учениках разных классов нужно найти класс, в котором больше всего девочек и больше всего мальчиков.
@@ -118,7 +124,7 @@ is_male = {
   'Миша': True,
 }
 # ???
-
+print('Problem 5.')
 max_dict = {
         'boys':{'class':'','value': 0 },
         'girls':{'class':'', 'value': 0}
@@ -126,13 +132,13 @@ max_dict = {
 
 
 for group in school:
-    names = get_dict_elements(group.get('students'))
+    names = get_name_list(group.get('students'))
     boys, girls = 0, 0
-    for name, value in names.items():
+    for name in names:
         if is_male[name]:
-            boys += value
+            boys += 1
         else:
-            girls += value
+            girls += 1
     group_name = group.get('class')
     
     if max_dict['boys']['value'] < boys:
@@ -150,3 +156,4 @@ print('Больше всего девочек в классе',max_dict['girls']
 # Пример вывода:
 # Больше всего мальчиков в классе 3c
 # Больше всего девочек в классе 2a
+
