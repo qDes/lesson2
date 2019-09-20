@@ -1,5 +1,6 @@
 import logging
 import functools
+import random
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from settings import TOKEN
@@ -27,6 +28,8 @@ def main(token, proxy):
     #create cities play function
     players = dict() 
     russian_cities = load_cities('russia_cities')
+    random.shuffle(russian_cities)
+    print(russian_cities)
     play_cities_part = functools.partial(play_cities, 
             cities_list = russian_cities, players = players)
 
